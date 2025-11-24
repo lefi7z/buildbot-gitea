@@ -30,8 +30,17 @@ class GiteaHandler(BaseHookHandler):
 
         branch = match.group(2)
 
+        # Note: choices for clone-URL are...
+        # - "html_url":  "https://<git-host>/<owner>/<repository>",
+        # - "url":       "https://<git-host>/api/v1/repos/<owner>/<repository>",
+        # - "ssh_url":   "git@<git-host>:<owner>/<repository>.git",
+        # - "clone_url": "https://<git-host>/<owner>/<repository>.git",
+        repo_url_key = "ssh_url"
+        if isinstance(self.options, dict) and self.options.get('preferHttpUrl', False):
+            repo_url_key = "clone_url"
+
         repository = payload['repository']
-        repo_url = repository['ssh_url']
+        repo_url = repository[repo_url_key]
         project = repository['full_name']
 
         commits = payload['commits']
